@@ -1,8 +1,11 @@
 import { Search, ShoppingBag, UserRound } from "lucide-react";
-import styles from "./Navbar.module.scss";
 import { Link, NavLink } from "react-router";
+import { useCart } from "../../hooks/useCart";
+import styles from "./Navbar.module.scss";
 
 const Navbar = () => {
+  const { totalItems } = useCart();
+
   return (
     <header className={styles.header}>
       <div className={styles.container}>
@@ -25,15 +28,25 @@ const Navbar = () => {
         </nav>
 
         <div className={styles.actions}>
-          <button aria-label="Buscar">
+          <button type="button" aria-label="Buscar">
             <Search size={21} />
           </button>
-          <button aria-label="Mi cuenta">
+
+          <button type="button" aria-label="Mi cuenta">
             <UserRound size={21} />
           </button>
-          <button aria-label="Carrito">
+
+          <Link
+            to="/cart"
+            className={styles.cartLink}
+            aria-label={`Ver carrito, ${totalItems} productos`}
+          >
             <ShoppingBag size={21} />
-          </button>
+
+            {totalItems > 0 && (
+              <span className={styles.cartCount}>{totalItems}</span>
+            )}
+          </Link>
         </div>
       </div>
     </header>
