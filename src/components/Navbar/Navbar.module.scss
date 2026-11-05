@@ -1,0 +1,74 @@
+@use "../../styles/variables" as *;
+
+.header {
+  background: $color-black;
+  color: $color-white;
+  width: 100%;
+}
+
+.container {
+  max-width: $container-width;
+  margin: 0 auto;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.logo {
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  white-space: nowrap;
+
+  span {
+    color: $color-accent;
+  }
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+
+  a {
+    font-size: 13px;
+    font-weight: 600;
+    transition: color 0.2s;
+
+    &:hover {
+      color: $color-accent;
+    }
+
+    &.active {
+      color: $color-accent;
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 4px;
+
+    &:hover {
+      color: $color-accent;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .navigation {
+    display: none;
+  }
+}
