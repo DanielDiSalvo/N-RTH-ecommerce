@@ -1,0 +1,32 @@
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 64px 24px;
+  min-height: 70vh;
+}
+
+.notFound {
+  padding: 80px 24px;
+}
+
+.title {
+  margin-bottom: 16px;
+}
+
+.productCount {
+  margin-bottom: 32px;
+}
+
+.message {
+  margin: 24px 0;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 40px 16px;
+  }
+
+  .notFound {
+    padding: 48px 16px;
+  }
+}

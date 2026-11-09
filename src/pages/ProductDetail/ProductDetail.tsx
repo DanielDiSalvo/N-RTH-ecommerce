@@ -8,30 +8,23 @@ import {
   Truck,
   RotateCcw,
 } from "lucide-react";
-import { useCart } from "../../hooks/useCart";
 
-import { products } from "../../data/products";
+import { useCart } from "../../hooks/useCart";
+import { useProductsContext } from "../../hooks/useProductsContext";
+import type { Product } from "../../types/product";
+
 import styles from "./ProductDetail.module.scss";
 
-const ProductDetail = () => {
-  const { productId } = useParams();
-  const { addItem } = useCart();
+interface ProductContentProps {
+  product: Product;
+}
 
-  const product = products.find((item) => item.id === productId);
+const ProductContent = ({ product }: ProductContentProps) => {
+  const { addItem } = useCart();
 
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-
-  if (!product) {
-    return (
-      <main className={styles.notFound}>
-        <h1>Producto no encontrado</h1>
-        <p>El producto que buscás no está disponible.</p>
-        <Link to="/">Volver al inicio</Link>
-      </main>
-    );
-  }
 
   const formattedPrice = new Intl.NumberFormat("es-AR", {
     style: "currency",
@@ -48,15 +41,9 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    if (!product || !selectedSize || product.stock <= 0) return;
+    if (!selectedSize || product.stock <= 0) return;
 
     addItem(product, selectedSize, quantity);
-
-    console.log("Producto agregado al carrito:", {
-      product: product.name,
-      selectedSize,
-      quantity,
-    });
   };
 
   return (
@@ -112,6 +99,7 @@ const ProductDetail = () => {
             <div className={styles.selector}>
               <div className={styles.selectorHeading}>
                 <span>Seleccionar talle</span>
+
                 {selectedSize && (
                   <span className={styles.selected}>Talle: {selectedSize}</span>
                 )}
@@ -170,7 +158,7 @@ const ProductDetail = () => {
               type="button"
               className={styles.addToCart}
               onClick={handleAddToCart}
-              disabled={!selectedSize || product.stock === 0}
+              disabled={!selectedSize || product.stock <= 0}
             >
               <ShoppingBag size={20} />
               AGREGAR AL CARRITO
@@ -196,6 +184,43 @@ const ProductDetail = () => {
       </div>
     </main>
   );
+};
+
+const ProductDetail = () => {
+  const { productId } = useParams();
+  const { products, loading, error } = useProductsContext();
+
+  if (loading) {
+    return (
+      <main className={styles.notFound}>
+        <p>Cargando producto...</p>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className={styles.notFound}>
+        <h1>Error al cargar el producto</h1>
+        <p>No pudimos obtener la información del catálogo.</p>
+        <Link to="/">Volver al inicio</Link>
+      </main>
+    );
+  }
+
+  const product = products.find((item) => item.id === productId);
+
+  if (!product) {
+    return (
+      <main className={styles.notFound}>
+        <h1>Producto no encontrado</h1>
+        <p>El producto que buscás no está disponible.</p>
+        <Link to="/">Volver al inicio</Link>
+      </main>
+    );
+  }
+
+  return <ProductContent key={product.id} product={product} />;
 };
 
 export default ProductDetail;

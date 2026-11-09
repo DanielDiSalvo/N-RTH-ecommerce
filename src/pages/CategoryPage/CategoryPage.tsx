@@ -1,16 +1,18 @@
 import { Link, useParams } from "react-router";
 import { categories } from "../../data/categories";
-import { products } from "../../data/products";
+import { useProductsContext } from "../../hooks/useProductsContext";
 import ProductGrid from "../../components/ProductGrid/ProductGrid";
+import styles from "./CategoryPage.module.scss";
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
+  const { products, loading, error } = useProductsContext();
 
   const category = categories.find((item) => item.id === categoryId);
 
   if (!category) {
     return (
-      <main style={{ padding: "80px 24px" }}>
+      <main className={styles.notFound}>
         <h1>Categoría no encontrada</h1>
         <Link to="/">Volver al inicio</Link>
       </main>
@@ -22,19 +24,26 @@ const CategoryPage = () => {
   );
 
   return (
-    <main
-      style={{
-        maxWidth: "1280px",
-        margin: "0 auto",
-        padding: "64px 24px",
-        minHeight: "70vh",
-      }}
-    >
-      <h1>{category.name.toUpperCase()}</h1>
+    <main className={styles.page}>
+      <h1 className={styles.title}>{category.name.toUpperCase()}</h1>
 
-      <p>{filteredProducts.length} productos</p>
+      {loading && <p className={styles.message}>Cargando productos...</p>}
 
-      <ProductGrid products={filteredProducts} />
+      {error && (
+        <p className={styles.message} role="alert">
+          No pudimos cargar los productos. Intentá nuevamente.
+        </p>
+      )}
+
+      {!loading && !error && (
+        <>
+          <p className={styles.productCount}>
+            {filteredProducts.length} productos
+          </p>
+
+          <ProductGrid products={filteredProducts} />
+        </>
+      )}
     </main>
   );
 };

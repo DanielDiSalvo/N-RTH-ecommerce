@@ -1,9 +1,8 @@
-
 import type { CartItem, CartAction } from "../types/cart";
 
 export const cartReducer = (
   state: CartItem[],
-  action: CartAction
+  action: CartAction,
 ): CartItem[] => {
   switch (action.type) {
     case "ADD_ITEM": {
@@ -20,22 +19,17 @@ export const cartReducer = (
 
       const existingItem = state.find(
         (item) =>
-          item.product.id === product.id &&
-          item.selectedSize === selectedSize
+          item.product.id === product.id && item.selectedSize === selectedSize,
       );
 
       if (existingItem) {
         return state.map((item) =>
-          item.product.id === product.id &&
-          item.selectedSize === selectedSize
+          item.product.id === product.id && item.selectedSize === selectedSize
             ? {
                 ...item,
-                quantity: Math.min(
-                  item.quantity + quantity,
-                  product.stock
-                ),
+                quantity: Math.min(item.quantity + quantity, product.stock),
               }
-            : item
+            : item,
         );
       }
 
@@ -55,9 +49,8 @@ export const cartReducer = (
       return state.filter(
         (item) =>
           !(
-            item.product.id === productId &&
-            item.selectedSize === selectedSize
-          )
+            item.product.id === productId && item.selectedSize === selectedSize
+          ),
       );
     }
 
@@ -69,19 +62,21 @@ export const cartReducer = (
       }
 
       return state.map((item) =>
-        item.product.id === productId &&
-        item.selectedSize === selectedSize
+        item.product.id === productId && item.selectedSize === selectedSize
           ? {
               ...item,
               quantity: Math.min(quantity, item.product.stock),
             }
-          : item
+          : item,
       );
     }
 
     case "CLEAR_CART":
       return [];
 
+    case "HYDRATE_CART":
+      return action.payload;
+      
     default:
       return state;
   }

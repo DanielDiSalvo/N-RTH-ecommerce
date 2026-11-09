@@ -1,3 +1,4 @@
+
 import type { Product } from "./product";
 
 export interface CartItem {
@@ -7,6 +8,10 @@ export interface CartItem {
 }
 
 export type CartAction =
+  | {
+      type: "HYDRATE_CART";
+      payload: CartItem[];
+    }
   | {
       type: "ADD_ITEM";
       payload: CartItem;

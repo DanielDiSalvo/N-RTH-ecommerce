@@ -1,12 +1,16 @@
 import { useEffect, useReducer, type ReactNode } from "react";
 import type { Product } from "../types/product";
 import type { CartItem } from "../types/cart";
-import { products } from "../data/products";
 import { cartReducer } from "../reducers/cartReducer";
 import { CartContext } from "./cartContext";
+import { useProductsContext } from "../hooks/useProductsContext";
 
 interface CartProviderProps {
   children: ReactNode;
+}
+
+interface ReadyCartProviderProps extends CartProviderProps {
+  products: Product[];
 }
 
 interface StoredCartItem {
@@ -16,9 +20,8 @@ interface StoredCartItem {
 }
 
 const STORAGE_KEY = "north-cart";
-const initialState: CartItem[] = [];
 
-const initCart = (): CartItem[] => {
+const initCart = (products: Product[]): CartItem[] => {
   try {
     const storedCart = localStorage.getItem(STORAGE_KEY);
 
@@ -29,15 +32,12 @@ const initCart = (): CartItem[] => {
     if (!Array.isArray(parsedCart)) return [];
 
     return parsedCart.reduce<CartItem[]>((cart, item: unknown) => {
-      if (!item || typeof item !== "object") {
-        return cart;
-      }
+      if (!item || typeof item !== "object") return cart;
 
       const stored = item as Partial<StoredCartItem> & {
         product?: { id?: unknown };
       };
 
-      // Compatible con el formato anterior del carrito.
       const productId =
         typeof stored.productId === "string"
           ? stored.productId
@@ -46,8 +46,8 @@ const initCart = (): CartItem[] => {
       if (
         typeof productId !== "string" ||
         typeof stored.selectedSize !== "string" ||
-        !Number.isInteger(stored.quantity) ||
         typeof stored.quantity !== "number" ||
+        !Number.isInteger(stored.quantity) ||
         stored.quantity <= 0
       ) {
         return cart;
@@ -65,15 +65,15 @@ const initCart = (): CartItem[] => {
 
       const quantity = Math.min(stored.quantity, product.stock);
 
-      const existingItem = cart.find(
+      const existing = cart.find(
         (item) =>
-          item.product.id === product.id &&
+          item.product.id === productId &&
           item.selectedSize === stored.selectedSize,
       );
 
-      if (existingItem) {
-        existingItem.quantity = Math.min(
-          existingItem.quantity + quantity,
+      if (existing) {
+        existing.quantity = Math.min(
+          existing.quantity + quantity,
           product.stock,
         );
       } else {
@@ -92,8 +92,8 @@ const initCart = (): CartItem[] => {
   }
 };
 
-const CartProvider = ({ children }: CartProviderProps) => {
-  const [items, dispatch] = useReducer(cartReducer, initialState, initCart);
+const ReadyCartProvider = ({ children, products }: ReadyCartProviderProps) => {
+  const [items, dispatch] = useReducer(cartReducer, products, initCart);
 
   useEffect(() => {
     try {
@@ -166,6 +166,20 @@ const CartProvider = ({ children }: CartProviderProps) => {
       {children}
     </CartContext.Provider>
   );
+};
+
+const CartProvider = ({ children }: CartProviderProps) => {
+  const { products, loading, error } = useProductsContext();
+
+  if (loading) {
+    return <p>Cargando catálogo...</p>;
+  }
+
+  if (error) {
+    return <p>Error al cargar el catálogo: {error}</p>;
+  }
+
+  return <ReadyCartProvider products={products}>{children}</ReadyCartProvider>;
 };
 
 export default CartProvider;

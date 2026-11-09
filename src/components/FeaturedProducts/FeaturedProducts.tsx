@@ -1,8 +1,10 @@
 import ProductGrid from "../ProductGrid/ProductGrid";
-import { products } from "../../data/products";
+import { useProductsContext } from "../../hooks/useProductsContext";
 import styles from "./FeaturedProducts.module.scss";
 
 const FeaturedProducts = () => {
+  const { products, loading, error } = useProductsContext();
+
   const featuredProducts = products.filter((product) => product.featured);
 
   return (
@@ -13,7 +15,15 @@ const FeaturedProducts = () => {
           <h2>PRODUCTOS DESTACADOS</h2>
         </div>
 
-        <ProductGrid products={featuredProducts} />
+        {loading && <p>Cargando productos...</p>}
+
+        {error && (
+          <p role="alert">
+            No pudimos cargar los productos. Intentá nuevamente.
+          </p>
+        )}
+
+        {!loading && !error && <ProductGrid products={featuredProducts} />}
       </div>
     </section>
   );
